@@ -14,23 +14,21 @@ import kotlinx.coroutines.launch
 class TimerViewModel : ViewModel() {
     private var timerJob: Job? = null
 
-    // Values selected in time picker
     var selectedHour by mutableIntStateOf(0)
         private set
+
     var selectedMinute by mutableIntStateOf(0)
         private set
+
     var selectedSecond by mutableIntStateOf(0)
         private set
 
-    // Total milliseconds when timer starts
     var totalMillis by mutableLongStateOf(0L)
         private set
 
-    // Time that remains
     var remainingMillis by mutableLongStateOf(0L)
         private set
 
-    // Timer's running status
     var isRunning by mutableStateOf(false)
         private set
 
@@ -39,12 +37,9 @@ class TimerViewModel : ViewModel() {
         selectedMinute = min
         selectedSecond = sec
     }
-
     fun startTimer() {
-        // Convert hours, minutes, and seconds to milliseconds
         totalMillis = (selectedHour * 60 * 60 + selectedMinute * 60 + selectedSecond) * 1000L
 
-        // Start coroutine that makes the timer count down
         if (totalMillis > 0) {
             isRunning = true
             remainingMillis = totalMillis
@@ -59,7 +54,6 @@ class TimerViewModel : ViewModel() {
             }
         }
     }
-
     fun cancelTimer() {
         if (isRunning) {
             timerJob?.cancel()
@@ -67,7 +61,10 @@ class TimerViewModel : ViewModel() {
             remainingMillis = 0
         }
     }
-
+    fun resetTimer() {
+        cancelTimer()
+        remainingMillis = totalMillis
+    }
     override fun onCleared() {
         super.onCleared()
         timerJob?.cancel()
