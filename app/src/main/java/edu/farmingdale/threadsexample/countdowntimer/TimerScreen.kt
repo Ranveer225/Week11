@@ -47,7 +47,6 @@ fun TimerScreen(
     } else {
         1f
     }
-
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = modifier
@@ -63,7 +62,7 @@ fun TimerScreen(
             )
             Text(
                 text = timerText(timerViewModel.remainingMillis),
-                fontSize = 70.sp,
+                fontSize = 60.sp,
                 modifier = Modifier.padding(16.dp)
             )
         }
@@ -73,27 +72,37 @@ fun TimerScreen(
             sec = timerViewModel.selectedSecond,
             onTimePick = timerViewModel::selectTime
         )
-        if (timerViewModel.isRunning) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = modifier.padding(top = 16.dp)
+        ) {
             Button(
                 onClick = timerViewModel::cancelTimer,
-                modifier = modifier.padding(50.dp)
+                enabled = timerViewModel.isRunning,
+                modifier = modifier.padding(8.dp)
             ) {
                 Text("Cancel")
             }
-        } else {
             Button(
-                enabled = timerViewModel.selectedHour +
+                onClick = timerViewModel::resetTimer,
+                enabled = !timerViewModel.isRunning && timerViewModel.totalMillis > 0,
+                modifier = modifier.padding(8.dp)
+            ) {
+                Text("Reset")
+            }
+            Button(
+                onClick = timerViewModel::startTimer,
+                enabled = !timerViewModel.isRunning &&
+                        timerViewModel.selectedHour +
                         timerViewModel.selectedMinute +
                         timerViewModel.selectedSecond > 0,
-                onClick = timerViewModel::startTimer,
-                modifier = modifier.padding(top = 50.dp)
+                modifier = modifier.padding(8.dp)
             ) {
                 Text("Start")
             }
         }
     }
 }
-
 
 fun timerText(timeInMillis: Long): String {
     val duration: Duration = timeInMillis.milliseconds
