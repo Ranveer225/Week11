@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +48,9 @@ fun TimerScreen(
     } else {
         1f
     }
+
+    val isLastTenSeconds = timerViewModel.remainingMillis <= 10_000 && timerViewModel.remainingMillis > 0
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = modifier
@@ -63,6 +67,8 @@ fun TimerScreen(
             Text(
                 text = timerText(timerViewModel.remainingMillis),
                 fontSize = 60.sp,
+                fontWeight = if (isLastTenSeconds) FontWeight.Bold else FontWeight.Normal,
+                color = if (isLastTenSeconds) Color.Red else MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(16.dp)
             )
         }

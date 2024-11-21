@@ -2,6 +2,7 @@ package edu.farmingdale.threadsexample.countdowntimer
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
@@ -23,7 +25,7 @@ import edu.farmingdale.threadsexample.ui.theme.ThreadsExampleTheme
 
 class CountDownActivity : ComponentActivity() {
 
-    private val timerViewModel = TimerViewModel()
+    private lateinit var timerViewModel: TimerViewModel
 
     private val permissionRequestLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -33,6 +35,12 @@ class CountDownActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        timerViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        ).get(TimerViewModel::class.java)
+
         enableEdgeToEdge()
         setContent {
             ThreadsExampleTheme(dynamicColor = false) {
@@ -45,10 +53,12 @@ class CountDownActivity : ComponentActivity() {
             }
         }
 
-        // Only need permission to post notifications on Tiramisu and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_DENIED
+            ) {
                 permissionRequestLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
@@ -57,11 +67,13 @@ class CountDownActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
 
-        // Start TimerWorker if the timer is running
         if (timerViewModel.isRunning) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
                     startWorker(timerViewModel.remainingMillis)
                 }
             } else {
@@ -73,7 +85,7 @@ class CountDownActivity : ComponentActivity() {
     private fun startWorker(millisRemain: Long) {
         val timerWorkRequest: WorkRequest = OneTimeWorkRequestBuilder<TimerWorker>()
             .setInputData(
-                `workDataOf`(
+                workDataOf(
                     KEY_MILLIS_REMAINING.toString() to millisRemain
                 )
             ).build()

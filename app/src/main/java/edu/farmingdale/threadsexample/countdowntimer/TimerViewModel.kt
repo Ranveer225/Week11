@@ -17,23 +17,16 @@ import kotlinx.coroutines.launch
 
 class TimerViewModel(application: Application) : AndroidViewModel(application) {
     private var timerJob: Job? = null
-    private val context = getApplication<Application>().applicationContext
-    private val mediaPlayer: MediaPlayer by lazy {
-        MediaPlayer.create(context, R.raw.timer_complete)
-    }
 
     var selectedHour by mutableIntStateOf(0)
         private set
-
     var selectedMinute by mutableIntStateOf(0)
         private set
-
     var selectedSecond by mutableIntStateOf(0)
         private set
 
     var totalMillis by mutableLongStateOf(0L)
         private set
-
     var remainingMillis by mutableLongStateOf(0L)
         private set
 
@@ -60,9 +53,6 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 isRunning = false
-
-                // Play sound when timer reaches 0
-                playCompletionSound()
             }
         }
     }
@@ -80,19 +70,8 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         remainingMillis = totalMillis
     }
 
-    private fun playCompletionSound() {
-        try {
-            if (!mediaPlayer.isPlaying) {
-                mediaPlayer.start()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
     override fun onCleared() {
         super.onCleared()
         timerJob?.cancel()
-        mediaPlayer.release()
     }
 }
