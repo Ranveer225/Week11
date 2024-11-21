@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +42,12 @@ fun TimerScreen(
     modifier: Modifier = Modifier,
     timerViewModel: TimerViewModel = viewModel()
 ) {
+    val progress = if (timerViewModel.totalMillis > 0) {
+        timerViewModel.remainingMillis.toFloat() / timerViewModel.totalMillis.toFloat()
+    } else {
+        1f
+    }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = modifier
@@ -47,9 +55,12 @@ fun TimerScreen(
                 .size(240.dp),
             contentAlignment = Alignment.Center
         ) {
-            if (timerViewModel.isRunning) {
-
-            }
+            CircularProgressIndicator(
+                progress = progress,
+                strokeWidth = 8.dp,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxSize()
+            )
             Text(
                 text = timerText(timerViewModel.remainingMillis),
                 fontSize = 70.sp,
@@ -82,7 +93,6 @@ fun TimerScreen(
         }
     }
 }
-
 
 
 fun timerText(timeInMillis: Long): String {
